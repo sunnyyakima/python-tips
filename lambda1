@@ -1,0 +1,6 @@
+# int are treated as string defaultly in many cases
+# this code sort a list of Ints as int.
+
+data = ‘3,1,100,99,0’.split(‘,’)
+
+sorted(data, key=lambda x: int(x))
