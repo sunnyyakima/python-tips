@@ -1,0 +1,78 @@
+# run bam-readcount
+# bam-readcount -f ~/resource/hg19/hg19.fa ~/ActionableMut/1S13-083121FM_S1.bam -l ~/ActionableMut/first3.bed
+# bed :
+import sys
+import os
+import re
+
+freqCutoff_actionable = 0.01
+bedfile_actionable = "/home/yliu/process_Aug2017/actionable/actionableBED_1.txt"
+
+def parseBed(inbed):
+    infile = open(inbed, "r")
+    outhash = {}
+    for line in infile.readlines():
+        line = line.rstrip("\n")
+        line = line.rstrip("\r")
+        temp = line.split("\t")
+        for k in range(int(temp[1]), int(temp[2])+1):
+            outhash[str(temp[0])+"_"+str(k)] = temp[-1]
+    return outhash
+
+def parseCount(incount):
+    infile = open(incount, "r")
+    outlist = []
+    for line in infile.readlines():
+        templist = []
+        line = line.rstrip("\n")
+        line = line.rstrip("\r")
+        temp = line.split("\t")
+        part1 = "\t".join(temp[0:4])
+        for i in range(5,10):
+            templist.append(getfirst2(temp[i]))
+        part2 = "\t".join(templist)
+        outlist.append(part1+"\t"+part2)
+    return outlist
+
+def getfirst2(inElem):
+    temp = inElem.split(":")
+    return temp[0]+":"+temp[1]
+
+def filter1(inlist, cutoff = freqCutoff_actionable):
+    temp = inlist.split("\t")
+    counts = []
+    for j in range(4,9):
+        base  = temp[j].split(":")[0]
+        count = temp[j].split(":")[1]
+        counts.append(int(count))
+
+    sortedCounts = sorted(counts)
+    ratio= 1 - float(sortedCounts[-1])/float(temp[3])
+    if(ratio < cutoff):
+            return False
+    return True
+
+def map0(inlist):
+    temp = inlist.split("\t")
+    return str(temp[0]) + "_" + str(temp[1])
+
+def map1(inlist):
+    temp = inlist.split("\t")
+    return str(temp[0]) + ":" + str(int(temp[1])-5) + "-" + str(int(temp[1])+5)
+
+def runningBamReadcount(bam, bed=bedfile_actionable):
+    os.system("bam-readcount -f ~/resource/hg19/hg19.fa -l " + bed + " " + bam +">bam-readcount_out.txt" )
+    geneHash = parseBed(bed)
+    countlist = parseCount("bam-readcount_out.txt")
+    filtered  = filter(filter1, countlist)
+
+    mapped    = map(lambda x: x + "\t" + geneHash[map0(x)] + "\t" + map1(x), filtered)
+    outfile = re.sub(r".bam", "_actionable.txt", bam)
+    outf = open(outfile, "w")
+    for k in mapped:
+        outf.write(str(k)+"\n")
+
+
+#script, bam, bed  = sys.argv
+
+#runningBamReadcount(bam, bed)
