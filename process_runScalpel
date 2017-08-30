@@ -1,0 +1,24 @@
+import os
+import sys
+import re
+import glob
+
+bedfile_scalpel = "/home/yliu/process_Aug2017/runScalpel/indel_Mar16.bed"
+
+def runscalpe(indir = "."):
+    for filename in glob.glob(os.path.join(indir, '*.bam')):
+        filename0  = filename.replace("./", "")
+        sampleID   = filename0.replace(".bam", "")
+
+        command0 = "scalpel-discovery  --single --bam " + filename + " --bed " + bedfile_scalpel +" --ref /home/yliu/resource/hg19/hg19.fa  --dir " +  sa
+mpleID + " --intarget --numprocs 6 --lowcov 3"
+        os.system(command0)
+
+        command  = "scalpel-export --single --db " + sampleID + "/variants.db --bed " + bedfile_scalpel + " --ref /home/yliu/resource/hg19/hg19.fa  --min
+-vaf 0.01 --min-alt-count 3 --intarget --min-del-size 5  --min-ins-size 5  > " + sampleID + "_scalpel.vcf"
+
+        os.system(command)
+        os.system("rm -rf "+ sampleID)
+
+
+#runscalpe()
