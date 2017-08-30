@@ -1,0 +1,27 @@
+
+https://stackoverflow.com/questions/41830006/download-file-from-another-directory-in-flask
+
+import os
+
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+dloads_dir = '/var/www/mysite/downloads/'
+dloads = os.listdir(dloads_dir).sort()
+dloads_src = ['/downloads/{}'.format(i) for i in dloads]
+
+@app.route('/Downloads')
+def list_downloads():
+
+    return render_template('downloads.html', dloads=dloads, dloads_src=dloads_src)
+    
+    
+#Then in the html (should I say Jinja2) template:
+
+<!doctype html>
+<title>Hello from Flask</title>
+{% for file in dloads %}
+    <a href="{{ dloads_src[loop.index0] }}" download>{{ file }}</a>
+{% endfor %}
+</html>
