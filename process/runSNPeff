@@ -1,4 +1,4 @@
-jvva -Xmx4g -jar snpEff.jar -v -stats ex1.html hg19  protocols/ex1.vcf > protocols/ex1.ann.vcf
+#jvva -Xmx4g -jar snpEff.jar -v -stats ex1.html hg19  protocols/ex1.vcf > protocols/ex1.ann.vcf
 
 import re
 import sys
@@ -57,16 +57,23 @@ def getAnn(ann, ml, dp):
     outHash["transccrpt"] = temp[6]
     outHash["codingSeqChange"] = temp[9].split(".")[1]
     outHash["variantLocation"] = temp[6]+":"+temp[9]
-    outHash["proteinChange"] = temp[10]
+    if(re.search(".", temp[10])):
+        outHash["proteinChange"] = temp[10].split(".")[1]
+    else:
+        outHash["proteinChange"] = temp[10]
     outHash["variantName"] = temp[3]+"_"+temp[10]
     outHash["molConseq"] = temp[1]
     return outHash
 
 script, infile = sys.argv
-
+outfile = infile
+outfile = re.sub("vcf$", "txt", outfile)
 annoList = parseSnpEff(infile)
 
 flat_list = [item for sublist in annoList for item in sublist]
 
+outf = open(outfile, "w")
 for anno in  flat_list:
-    print(anno["variantName"])
+    outf.write("sequencing\t"+anno["geneName"]+"\t"+anno["map_location"]+"\t"+anno["transccrpt"]+"\t"+anno["codingSeqChange"]+"\t")
+    outf.write(anno["variantLocation"]+"\t"+anno["proteinChange"]+"\t"+anno["variantName"]+"\tshort-variant\tseq\tmiSeq\tpositive\t\t\t"+anno["readDepth"]+"\n")
+
