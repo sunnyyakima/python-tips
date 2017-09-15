@@ -1,0 +1,70 @@
+import re
+import sys
+import os
+
+Quality_threshold    = 95
+Read_depth           = 65
+
+def parseSnpEff(infile):    # output is a list of hash
+    inf = open(infile, "r")
+    outList = []
+    for line in inf.readlines():
+        if(filter_lowQC(line)):
+            continue
+        temp1 = line.split("\t")
+        map_location = str(temp1[0])+":"+str(temp1[1])
+        Read_depth   = getDepth(temp1)
+        temp7 = temp1[7].split(";")
+        for info in temp7:
+            if(re.search("^ANN", info)):
+                outList.append(parseAnn(info, map_location, Read_depth))
+
+    return outList
+
+def filter_lowQC(line):
+    if(re.search("\#", line)):
+        return 1
+    temp = line.split("\t")
+    if(temp[5] < Quality_threshold or temp[6] != "PASS"):
+        return 1
+    return 0
+
+def parseAnn(info, ml, dp):
+    out = []
+    if(re.search(",", info)):
+        anns = info.split(",")
+        for ann in anns:
+            out.append(getAnn(ann, ml, dp))
+    else:
+        out.append(getAnn(info, ml, dp))
+    return out
+
+def getDepth(temp0):
+    temp = temp0[7].split(";")
+    for info in temp:
+        if(re.search("^DP", info)):
+            dplist = info.split("=")
+            return(str(dplist[1]))
+
+def getAnn(ann, ml, dp):
+    outHash = {}
+    temp = ann.split("|")
+    outHash["readDepth"] = dp
+    outHash["map_location"] = ml
+    outHash["geneName"] = temp[3]
+    outHash["transccrpt"] = temp[6]
+    outHash["codingSeqChange"] = temp[9].split(".")[1]
+    outHash["variantLocation"] = temp[6]+":"+temp[9]
+    outHash["proteinChange"] = temp[10]
+    outHash["variantName"] = temp[3]+"_"+temp[10]
+    outHash["molConseq"] = temp[1]
+    return outHash
+
+script, infile = sys.argv
+
+annoList = parseSnpEff(infile)
+
+flat_list = [item for sublist in annoList for item in sublist]
+
+for anno in  flat_list:
+    print(anno["variantName"])
