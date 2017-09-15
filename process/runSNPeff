@@ -1,3 +1,5 @@
+jvva -Xmx4g -jar snpEff.jar -v -stats ex1.html hg19  protocols/ex1.vcf > protocols/ex1.ann.vcf
+
 import re
 import sys
 import os
