@@ -13,3 +13,16 @@ funkytown._asdict()
 
 a, *body, c, d = range(5)
 *head, b, c, d = range(5)
+
+# namedtuple has a few attributes: 
+City._fields
+('name', 'country', 'population', 'coordinates')
+_fields is a tuple with the field names of the class.
+
+delhi_data = ('Delhi NCR', 'IN', 21.935, LatLong(28.613889, 77.208889))
+delhi = City._make(delhi_data)
+_make() allow you to instantiate a named tuple from an iterable; City(*delhi_data) would do the same.
+
+delhi._asdict()
+OrderedDict([('name', 'Delhi NCR'), ('country', 'IN'), ('population',21.935), ('coordinates', LatLong(lat=28.613889, long=77.208889))])
+_asdict() returns a collections.OrderedDict built from the named tuple instance. That can be used to produce a nice display of city data.
