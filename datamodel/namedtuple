@@ -1,0 +1,12 @@
+from collections import namedtuple
+
+Card = collections.namedtuple('Card', ['rank', 'suit'])
+beer_card = Card('7', 'diamonds')
+
+City = namedtuple('City', 'name country population coordinates')
+tokyo = City('Tokyo', 'JP', 36.933, (35.689722, 139.691667))
+
+fields = ['name', 'population', 'coordinates', 'capital', 'state_bird']
+Town = collections.namedtuple('Town', fields)
+funkytown = Town('funky', 300, 'somewhere', 'lipps', 'chicken')
+funkytown._asdict()
