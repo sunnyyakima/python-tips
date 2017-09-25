@@ -10,3 +10,6 @@ fields = ['name', 'population', 'coordinates', 'capital', 'state_bird']
 Town = collections.namedtuple('Town', fields)
 funkytown = Town('funky', 300, 'somewhere', 'lipps', 'chicken')
 funkytown._asdict()
+
+a, *body, c, d = range(5)
+*head, b, c, d = range(5)
