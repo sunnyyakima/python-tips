@@ -1,3 +1,7 @@
+# generate list of list
+board = [['_'] * 3 for i in range(3)]
+board[1][2] = 'X'
+
 # each element has to be a list
 flat_list = [item for sublist in lst for item in sublist]
 
