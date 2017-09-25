@@ -1,5 +1,0 @@
-# element by element multiply
-
-[a * b for a,b in zip(lista, listb)]
-
-map(lambda a,b: a*b, lista, listb)
