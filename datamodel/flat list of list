@@ -1,0 +1,40 @@
+# each element has to be a list
+flat_list = [item for sublist in lst for item in sublist]
+
+from functools import reduce
+reduce(lambda x,y: x+y, lst)
+
+# more general case like: nests = [1, 2, [3, 4, [5],['hi']], [6, [[[7, 'hello']]]]]
+
+def flatten(container):
+    for i in container:
+        if isinstance(i, (list,tuple)):
+            for j in flatten(i):
+                yield j
+        else:
+            yield i
+            
+def flatten(items, seqtypes=(list, tuple)):
+    for i, x in enumerate(items):
+        while i < len(items) and isinstance(items[i], seqtypes):
+            items[i:i+1] = items[i]
+    return items 
+    
+def flatten(iterable):
+    iterator, sentinel, stack = iter(iterable), object(), []
+    while True:
+        value = next(iterator, sentinel)
+        if value is sentinel:
+            if not stack:
+                break
+            iterator = stack.pop()
+        elif isinstance(value, str):
+            yield value
+        else:
+            try:
+                new_iterator = iter(value)
+            except TypeError:
+                yield value
+            else:
+                stack.append(iterator)
+                iterator = new_iterator
