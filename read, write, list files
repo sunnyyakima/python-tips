@@ -1,3 +1,6 @@
+import os
+_, filename = os.path.split('/home/luciano/.ssh/idrsa.pub')
+filename
 
 infile = open(inGeno, 'r')
  for line in infile.readlines():
