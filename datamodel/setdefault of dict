@@ -1,0 +1,13 @@
+a = dict(one=1, two=2, three=3)
+b = {'one': 1, 'two': 2, 'three': 3}
+
+a.setdefault("four", 4)
+
+# better use is:
+adict.setdefault(akey,[]).append(addedElement)
+# adict is ==> key: [values]
+# which is same as following:
+
+if key not in my_dict:
+   my_dict[key] = []
+my_dict[key].append(new_value)
