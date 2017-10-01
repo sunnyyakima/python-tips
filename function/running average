@@ -15,3 +15,13 @@ avg(11)
 10.5
 avg(12)
 11.0
+
+def make_averager():
+  count = 0
+  total = 0
+  def averager(new_value):
+    nonlocal count, total    # NONLOCAL is the key point here
+    count += 1
+    total += new_value
+    return total / count
+  return averager
