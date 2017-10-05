@@ -1,0 +1,55 @@
+
+#  run  python runVarDict.py  . Run170413
+
+import os
+import sys
+import re
+import glob
+from process_runSummary import *
+from process_actionable import *
+from process_lowcoverage import *
+from process_runScalpel import *
+
+def process(indir = "."):
+
+    summaryVcf(indir)
+    runscalpe(indir)
+    for filename in glob.glob(os.path.join(indir, '*.bam')):
+        runningBamReadcount(filename)
+        runBamReadcount_lowcoverage(filename)
+#    os.system("mkdir " + runID + "CellNas")
+#        os.system("mv summary_variants.txt *_scalpel.vcf *_actionable.txt *_lowcoverage.txt " + runID+ "CellNas")
+#        os.system("zip -r " + runID + "_CellNas.zip " + runID+ "CellNas")
+script, runDir0 = sys.argv
+
+runDir0 = re.sub(r" $", "", runDir0)
+runDir0 = re.sub(r"^ ", "", runDir0)
+#process()
+#exit()
+runDir = "/media/ngs/NGS_V1.5_patient_runs/" + runDir0 + "/Data/Intensities/BaseCalls/Alignment/"
+
+os.system("rm -rf *bam* *vcf nohup.out  CellNasResults.zip ")
+
+if(re.search("\/$", runDir)):
+    os.system("ln -s " + runDir + "*bam* ." )
+    os.system("ln -s " + runDir + "*vcf* ." )
+    os.system("rm -rf *genome.vcf" )
+else:
+    os.system("ln -s " + runDir + "/*bam* ." )
+    os.system("ln -s " + runDir + "/*vcf* ." )
+    os.system("rm -rf *genome.vcf" )
+
+os.system("rm -rf CellNas_status.txt")
+os.system("rm -rf  " + runDir0 + "CellNas")
+
+os.system("echo CellNas is running a job, and not available, check later pleae > CellNas_status.txt")
+
+process()
+
+os.system("mkdir " + runDir0 + "CellNas")
+os.system("mv summary_variants.txt *_scalpel.vcf *_vardict.vcf  *_actionable.txt *_lowcoverage.txt " + runDir0+ "CellNas")
+os.system("zip -r CellNasResults.zip " + runDir0+ "CellNas")
+
+os.system("rm -rf  CellNas_running.txt")
+os.system("echo CellNas is available for submitting a job > CellNas_status.txt")
+
