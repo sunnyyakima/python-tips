@@ -1,0 +1,30 @@
+
+{% extends "template.html" %}
+  {% block content %}
+   <h2>Welcome to CellNetix NGS Analysis System</h2>
+   <p><a href="/logout">Logout</a></p>
+
+   <h3>Current Services:</h3>
+   <h4>Upload new File</h4>
+    <form action="{{ url_for('upload_file') }}" method=post enctype=multipart/fo
+rm-data>
+      <p><input type=file name=file>
+         <input type=submit value=Upload>
+    </form>
+   <br/>
+
+   <td><a href="{{ url_for('checkStatus') }}" target="_blank" >check CellNas sta
+tus</a></td>
+
+   <form action="{{ url_for('runProcess') }}" method="post">
+      <p><label><strong> Processing NGS run: </strong></label></p>
+      <p><textarea name="runID" rows="1" cols="40">Copy paste NGS runID here</te
+xtarea></p>
+      <p><input class="button" type="submit" value="Submit"> </p>
+   </form>
+
+   <br/>
+   <td><a href="{{ url_for('download', filename="CellNasResults.zip") }}" >Downl
+oad CellNas results</a></td>
+
+{% endblock %}
