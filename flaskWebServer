@@ -1,0 +1,104 @@
+
+from flask import Flask, render_template, request, session, flash, redirect, url_for, send_from_directory , Response
+from functools import wraps
+import os
+from werkzeug import secure_filename
+#from flask import send_from_directory
+
+# configuration
+DATABASE = 'Gene.db'
+DATABASE2 = 'SNP.db'
+USERNAME = 'admin'
+PASSWORD = 'admin'
+SECRET_KEY = 'hard_to_guess'
+UPLOAD_FOLDER = '/home/yliu/flaskWebServer/uploadedFiles'
+ALLOWED_EXTENSIONS = set(['txt', 'bam', 'vcf', 'tsv'])
+
+# create the application object
+app = Flask(__name__)
+
+# pulls in app configuration by looking for UPPERCASE variables
+app.config.from_object(__name__)
+
+
+def login_required(test):
+    @wraps(test)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return test(*args, **kwargs)
+        else:
+            flash('You need to login first.')
+            return redirect(url_for('login'))
+    return wrap
+
+# use decorators to link the function to a url
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form['username'] != app.config['USERNAME'] or request.form['password'] != app.config['PASSWORD']:
+            error = 'Invalid Credentials. Please try again.'
+        else:
+            session['logged_in'] = True
+            return render_template('dashboard.html')                 # redirect(url_for('dashboard'))
+    return render_template('login.html', error=error)
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    flash('You were logged out')
+    return redirect(url_for('login'))
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+#@app.route('/uploads/<filename>')
+#@login_required
+#def uploaded_file(filename):
+#    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/upload', methods=['GET', 'POST'])
+@login_required
+def upload_file():
+    if request.method == 'POST':
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+#            retuqrn redirect(url_for('uploaded_file', filename=filename))
+            return  render_template('dashboard.html')
+    return  render_template('dashboard.html')  
+
+
+@app.route('/upload/<path:filename>', methods=['GET', 'POST'])
+def download(filename):
+#    uploads = os.path.join(current_app.root_path, app.config['UPLOAD_FOLDER'])
+    return send_from_directory(directory="/home/yliu/flaskWebServer", filename=filename, as_attachment=True)
+
+
+@app.route('/checkStatus', methods=['GET', 'POST'])
+@login_required
+def checkStatus( ):
+    f = open("CellNas_status.txt", "r") 
+    return Response(f.read(), mimetype='text/plain')
+
+
+@app.route('/runProcess', methods=['GET', 'POST'])
+@login_required
+def runProcess( ):
+    runID = request.form.getlist('runID')
+    if not  runID[0]:
+        flash("Please type runID! ")
+        return render_template('dashboard.html')  
+    else:
+        print(runID[0])
+#        os.system("rm -rf *CellNas*")
+        os.system("nohup python process_all.py " + runID[0] + " &")
+#        os.system("mkdir " + runID[0] + "CellNas")
+#        os.system("mv summary_variants.txt *_scalpel.vcf *_actionable.txt *_lowcoverage.txt " + runID[0]+ "CellNas")
+#        os.system("zip -r " + runID[0] + "_CellNas.zip " + runID[0]+ "CellNas")
+        return render_template('dashboard.html')
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
