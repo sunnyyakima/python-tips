@@ -1,0 +1,73 @@
+# 
+
+from sys import argv 
+import re
+import itertools
+
+script, filename = argv
+
+def wordcount(inwords):
+    inwords0 = re.sub(r"[,!.:;\"\t]", "", inwords)
+    words_list = inwords0.split(" ")
+    words_filtered = list(filter(lambda x: x is not "", words_list))
+    return words_filtered
+
+contents = ""
+infile = open(filename, 'r')
+for line in infile.readlines():
+    line = line.rstrip("\n")
+    contents = contents + line + " "
+    
+words = wordcount(contents)
+print("Total word count: "+ str(len(words)))
+print("Unique words: " + str(len(set(words))))
+
+sentences = re.split("!|\.|,|;|:|\?", contents)
+print("Sentences: " + str(len(sentences)))
+
+sum0 = 0
+for s in sentences:
+    w = wordcount(s)
+    sum0 += len(w)
+print("Average sentence length: " +str(sum0/len(sentences)))
+
+freq_list = []
+freq_dict = {}
+for i in range(0, len(words)):
+    if(words[i] in freq_dict):
+        freq_dict[words[i]] = freq_dict[words[i]] + 1
+    else:
+        freq_dict[words[i]] = 1
+
+for i in range(0, len(words)):
+    freq_list.append(freq_dict[words[i]])
+    
+phrase0 = []
+for index, freq in enumerate(freq_list):
+    if freq >= 3 and (freq_list[index-1] >= 3 or freq_list[index+1] >= 3):
+        phrase0.append(index)
+
+phrase1 = ""  
+for i in range(0, len(phrase0)):
+    phrase1 = phrase1 + words[phrase0[i]] + " "
+    if(i+1 < len(phrase0) and phrase0[i+1] != phrase0[i] + 1):
+        phrase1 = phrase1 + "_"
+
+phrase2 = phrase1.split("_")
+phrase_freq = {}
+phrase_len  = {}
+for f in phrase2:
+    if f in phrase_freq:
+        phrase_freq[f] = phrase_freq[f] + 1
+    else:
+        phrase_freq[f] = 1
+    phrase_len[f] = len(f.split(" "))
+
+for f in phrase_freq:
+    if(phrase_freq[f] >= 3 and phrase_len[f] >= 4):
+        print("Potential phrase is: " + str(f))
+
+print("\n")
+
+for w in reversed(sorted(freq_dict.items(), key=lambda x: x[1])):
+    print(str(w[0])+":"+str(w[1]))
