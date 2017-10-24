@@ -1,0 +1,5 @@
+# sort by value
+sorted(Dict0.items(), key=lambda x: x[1])
+
+# sort by key
+sorted(Dict1.keys(), key=lambda x: x[0])
