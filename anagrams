@@ -1,0 +1,27 @@
+
+# Two words are anagrams if they have the exact same letters.
+# number of letter
+
+print find_anagrams(['bat', 'bat', 'rats', 'god', 'dog', 'cat', 'arts', 'star', 'rats'])
+#=> ['rats', 'god', 'dog', 'arts', 'star']
+
+
+def find_anagrams(inlist):
+    outList = []
+    newDict = {}
+    for word in inlist:
+        letters = list(word)
+        letters_sorted = sorted(letters)
+        newDict[word] = "".join(letters_sorted)
+    Dict2 = {}
+    for k in newDict:
+        if newDict[k] in Dict2:
+            Dict2[newDict[k]] = Dict2[newDict[k]] + 1
+        else:
+            Dict2[newDict[k]] = 1
+    for k in newDict:
+        if(Dict2[newDict[k]] >= 2):
+            outList.append(k)
+        
+    return outList
+        
