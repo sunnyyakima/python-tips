@@ -1,0 +1,5 @@
+a = [1, 2, 3, 4, 5]
+b = [9, 8, 4, 6, 5]
+set(a) & set(b)
+set(a) - set(b)
+set(a + b)  # union
