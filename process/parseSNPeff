@@ -1,0 +1,151 @@
+
+# jvva -Xmx4g -jar snpEff.jar -v -stats ex1.html hg19  protocols/ex1.vcf > protocols/ex1.ann.vcf
+
+import re
+import sys
+import os
+import sqlite3
+
+Header_Nof1          = "sequencing-type-xml\tgene-xml\tmap-location-xml\ttranscript-id-xml\tcoding-seq-change-xml\tvariant-location-report\tprotein-change-xml\tvariant-name-full-report\tvariant-type-xml\tcomment-xml\tsequencing-method-xml\tplatform-xml\tresult-xml\tcopy-number-xml\tcopy-number-change-xml\tMolecular consequence"
+Header_Additional    = "Allele_Freq_Global_Minor\tAlt_Variant_Freq\tRead_Depth\tReference_nucleotide\tObserved_nucleotide\tReference_Amino_Acid\tObserved_Amino_Acid\tProtein_Start_Position\tProtein_Stop_Position\tApproximate_genomic_start_position\tGenome_build\tGenomic_Source\tTranscript_ID\tsource(NCBI)\tHGVS_genomic_change"
+## note that "YES1" doesn't have transcript and "CDKN2A" has two transcripts
+Preferred_transcript = ("NM_001014432","NM_004304","NM_000051","NM_004333","NM_007294","NM_000059","NM_053056","NM_000075","NM_001259","NM_000077","NM_058195","NM_005211","NM_005228","NM_004431","NM_004448","NM_023110","NM_000141","NM_000142","NM_002019","NM_004119","NM_002020","NM_002037","NM_005270","NM_002253","NM_000222","NM_004985","NM_005356","NM_002350","NM_002755","NM_002755","NM_030662","NM_002447","NM_004958","NM_002524","NM_006206","NM_002609","NM_000264","NM_002880","NM_000321","NM_020975","NM_002944","NM_005631","NM_005417","NM_000368","NM_000548","NM_000551","NM_001904","NM_005235","NM_002392","NM_017617","NM_006218","NM_005359","NM_000455","NM_000546","NM_000038","NM_001654","NM_001204106","NM_001014796","NM_002067","NM_002072","NM_001527","NM_005343","NM_000875","NM_004972","NM_000215","NM_001127500","NM_000249","NM_000251","NM_000179","NM_000535","NM_002691","NM_006231","NM_000314","NM_023067","NM_000516","NM_198253","NM_001122742","NM_000061","NM_006180","NM_000459","NM_005433")
+Conseq_kept          = ("coding_sequence_variant","feature_truncation","frameshift_variant","incomplete_terminal_codon_variant","inframe_deletion","inframe_insertion","missense_variant","protein_altering_variant","splice_acceptor_variant","splice_donor_variant","splice_region_variant","start_lost","stop_gained","stop_lost","stop_retained_variant","transcript_truncation","feature_elongation","transcript_ablation","rare_amino_acid_variant","disruptive_inframe_insertion","disruptive_inframe_deletion","5_prime_UTR_truncation+exon_loss_variant","3_prime_UTR_truncation+exon_loss","splice_branch_variant","initiator_codon_variant","TF_binding_site_variant","conservative_inframe_deletion","exon_loss_variant","rare_amino_acid_variant","5_prime_UTR_premature_start_codon_gain_variant","non_coding_exon_variant" )
+KnownVariants        = ("NM_000142.4:c.445+3A>G","NM_006231.2:c.4290+5C>T","NM_000535.5:c.2006+6G>A","NM_000077.4:c.442G>A","NM_002447.2:c.965G>A","NM_000059.3:c.2971A>G","NM_006206.4:c.368-3C>T","NM_000535.5:c.1454C>A","NM_005235.2:c.2965-7_2965-4delCTTT","NM_000141.4:c.557T>C","NM_006231.2:c.4444+4T>A","NM_007294.3:c.1067A>G","NM_006218.2:c.1173A>G","NM_000535.5:c.59G>A","NM_002072.3:c.286A>T","NM_023067.3:c.536C>G","NM_000051.3:c.5557G>A","NM_000368.4:c.965T>C","NM_006180.3:c.1765-7T>C","NM_005631.4:c.74A>G","NM_000368.4:c.3127_3129delAGC","NM_002944.2:c.500G>A","NM_002944.2:c.3326C>T","NM_002944.2:c.5941-4A>G","NM_000535.5:c.2007-7C>T","NM_000368.4:c.1335A>G","NM_000251.2:c.2006-6T>C","NM_002020.4:c.1480A>G","NM_006231.2:c.4187A>G","NM_002755.3:c.1023-8C>T","NM_005211.3:c.1085A>G","NM_002691.3:c.463+8G>T","NM_006231.2:c.755C>T","NM_002691.3:c.356G>A","NM_006206.4:c.1432T>C","NM_002020.4:c.3437G>A","NM_000535.5:c.2007-4G>A","NM_004304.4:c.4165-6C>T","NM_020975.4:c.2071G>A","NM_002020.4:c.445A>G","NM_005631.4:c.67_69delCTG","NM_002944.2:c.433A>C","NM_030662.3:c.453C>T","NM_002944.2:c.6686C>G","NM_002944.2:c.6682A>C","NM_002944.2:c.6637G>A","NM_000455.4:c.920+7G>C","NM_000535.5:c.2570G>C","NM_000059.3:c.1114A>C","NM_000249.3:c.655A>G","NM_004448.2:c.1963A>G","NM_000179.2:c.116G>A","NM_004304.4:c.3359+6C>T","NM_004304.4:c.4472A>G","NM_007294.3:c.3113A>G","NM_007294.3:c.4837A>G","NM_007294.3:c.3548A>G","NM_005228.3:c.1562G>A","NM_000535.5:c.1408C>T","NM_004119.2:c.20A>G","NM_007294.3:c.2612C>T","NM_000264.3:c.3944C>T","NM_002609.3:c.3137+4A>G","NM_017617.3:c.2588-4G>A","NM_002447.2:c.4003A>G","NM_002447.2:c.1568A>G","NM_004304.4:c.4587C>G","NM_053056.2:c.723G>A","NM_002944.2:c.3855-5T>C","NM_004448.2:c.3508C>G","NM_005270.4:c.3466G>T","NM_017617.3:c.1441+7C>T","NM_004119.2:c.680C>T","NM_005270.4:c.3916G>A","NM_002020.4:c.2670C>G","NM_004119.2:c.1310-3T>C","NM_000038.5:c.5465T>A","NM_000546.5:c.215C>G","NM_000535.5:c.1621A>G","NM_000459.3:c.1037A>C","NM_000059.3:c.7397T>C","NM_004304.4:c.4381A>G","NM_002447.2:c.3583A>G","NM_002253.2:c.889G>A")
+Quality_threshold    = 95
+Read_depth           = 65
+
+##INFO=<ID=ANN,Number=.,Type=String,Description="Functional annotations: 'Allele | Annotation | Annotation_Impact | Gene_Name | Gene_ID | Feature_Type | Feature_ID | Transcript_BioType | Rank | HGVS.c | HGVS.p | cDNA.pos / cDNA.length | CDS.pos / CDS.length | AA.pos / AA.length | Distance | ERRORS / WARNINGS / INFO' ">
+
+def parseSnpEff(infile):    # output is a list of hash
+    inf = open(infile, "r")
+    outList = []
+    for line in inf.readlines():
+        if(filter_lowQC(line)):
+            continue
+        temp1 = line.split("\t")
+        chrm = str(re.sub("chr", "", temp1[0]))
+        pos  = int(temp1[1])
+        alt  = temp1[4]
+        af = getAF_db(chrm,pos,alt)
+#        print(af)
+        map_location = str(temp1[0])+":"+str(temp1[1])
+        Read_depth   = getDepth(temp1)
+        Allel_freq   = getAF(temp1) 
+        temp7 = temp1[7].split(";")
+        for info in temp7:
+            if(re.search("^ANN", info)):
+                outList.append(parseAnn(info, map_location, af, Allel_freq, Read_depth))
+
+    return outList    
+
+def filter_lowQC(line):
+    if(re.search("\#", line)):
+        return 1
+    temp = line.split("\t")
+    if(float(temp[5]) < Quality_threshold or temp[6] != "PASS"):
+        return 1
+    return 0
+
+def parseAnn(info, ml, af, vdp, dp):
+    out = []
+    if(re.search(",", info)):
+        anns = info.split(",") 
+        for ann in anns:
+            out.append(getAnn(ann, ml, af, vdp, dp))
+    else:
+        out.append(getAnn(info, ml, af, vdp, dp))
+    return out
+
+def getDepth(temp0):
+    temp = temp0[7].split(";")
+    for info in temp:
+        if(re.search("^DP", info)):
+            dplist = info.split("=")
+            return(str(dplist[1]))
+
+def getAF(temp0):
+    temp = temp0[7].split(";")
+    for info in temp:
+        if(re.search("AF", info)):
+            vdplist = info.split("=")
+            return(str(vdplist[1]))
+
+
+def getAnn(ann, ml, af, vdp, dp):
+    outHash = {}
+    temp = ann.split("|")
+    outHash["AlleleFreq"] = str(af)
+    outHash["variantReadDepth"] = vdp
+    outHash["readDepth"] = dp
+    outHash["map_location"] = ml
+    outHash["geneName"] = temp[3]
+    outHash["transccrpt"] = temp[6]
+    outHash["codingSeqChange"] = temp[9].split(".")[1]
+    outHash["variantLocation"] = temp[6]+":"+temp[9]
+    if(re.search(".", temp[10])):
+        outHash["proteinChange"] = temp[10].split(".")[1]
+    else:
+        outHash["proteinChange"] = temp[10]
+    outHash["variantName"] = temp[3]+"_"+temp[10]
+    outHash["molConseq"] = temp[1]
+
+    return outHash
+
+def filterAnn(AnnoList):
+    outList  = []
+    flagDict = {}
+    for anno in AnnoList:
+#        print(anno["variantLocation"])
+        if anno["variantLocation"] in KnownVariants:
+            continue
+        if checkMolConseq(anno["molConseq"])  and anno["transccrpt"] in Preferred_transcript:
+            flagDict[anno["map_location"]] = 1
+            outList.append(anno)
+    for anno in AnnoList:
+        if anno["variantLocation"] in KnownVariants:
+            continue
+#        if anno["molConseq"] in Conseq_kept and anno["transccrpt"] not in Preferred_transcript and anno["map_location"] not in flagDict:
+        if checkMolConseq(anno["molConseq"]) and anno["transccrpt"] not in Preferred_transcript and anno["map_location"] not in flagDict:
+            flagDict[anno["map_location"]] = 1
+            outList.append(anno)
+    return outList
+
+def checkMolConseq(molConseq):
+    if(re.search("&", molConseq)):
+        conseqs = molConseq.split("&")
+        for conseq in conseqs:
+            if conseq in Conseq_kept:
+                return True
+    else:
+        if molConseq in Conseq_kept:
+            return True
+    return False
+
+def getAF_db(chrm,pos,alt):
+
+    db  = sqlite3.connect('exac_af.db')
+    cur = db.execute("select af from variantAF where chrom = ? and pos = ? and alt = ?", (chrm,pos,alt))
+    af_extracted =  cur.fetchall()
+    db.close()
+    if(af_extracted):
+        return af_extracted[0][0]
+    else:
+        return 0
+
+
+script, infile = sys.argv
+outfile = infile
+outfile = re.sub("vcf$", "txt", outfile)
+annoList = parseSnpEff(infile)
+
+flat_list = [item for sublist in annoList for item in sublist]
+anno_list = filterAnn(flat_list)
+
+outf = open(outfile, "w")
+for anno in  anno_list:
+
+    outf.write("sequencing\t"+anno["geneName"]+"\t"+anno["map_location"]+"\t"+anno["transccrpt"]+"\t"+anno["codingSeqChange"]+"\t")
+    outf.write(anno["variantLocation"]+"\t"+anno["proteinChange"]+"\t"+anno["variantName"]+"\tshort-variant\t\tseq\tmiSeq\tpositive\t\t\t"+anno["molConseq"]+"\t"+anno["AlleleFreq"]+"\t"+anno["variantReadDepth"]+"\t"+anno["readDepth"]+"\n")
+
+
