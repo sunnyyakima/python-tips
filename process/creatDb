@@ -1,0 +1,45 @@
+# sql.py - Create a SQLite3 table and populate it uisng a text file
+
+import sqlite3
+import re
+import sys
+
+def populateAFDB(infile, db):
+    connection = sqlite3.connect(db)
+    with connection:
+        cur = connection.cursor()
+        cur.execute('drop table if exists variantAF')
+#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO
+        cur.execute('CREATE TABLE  variantAF  (chrom TEXT, pos INT, id TEXT, ref TEXT, alt TEXT, qual INT, filter TEXT, af REAL)')
+        with open(infile, 'r') as f:
+            for line in f:
+                line.rstrip("\n")
+                line = re.sub("AF=", "", line)
+                if(re.search(",", line)):
+                    mulitlines = multiAllel(line)
+                    for mline in mulitlines:
+                        md = mline.split("\t")
+                        cur.execute('INSERT INTO variantAF VALUES (?,?,?,?,?,?,?,?)',md)
+                    continue
+                d = line.split("\t")
+                cur.execute('INSERT INTO variantAF VALUES (?,?,?,?,?,?,?,?)',d)
+    connection.commit()
+#    cur = connection.execute("select * from variantAF where chrom = ? and pos = ?", (1,324682))
+#    af_extracted =  cur.fetchall()
+#    print(af_extracted)
+
+def multiAllel(line):
+    outlist = []
+    d = line.split("\t")
+    alts = d[4].split(",")
+    afs  = d[7].split(",")
+    first4 = "\t".join(d[0:4])
+    last2  = d[5]+"\t"+d[6]
+    for i in range(len(alts)):
+        outlist.append(first4+"\t"+alts[i]+"\t"+last2+"\t"+afs[i])
+    return outlist
+
+script, af_in, db_name = sys.argv
+populateAFDB(af_in, db_name)
+
+
