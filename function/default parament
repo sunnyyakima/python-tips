@@ -1,0 +1,17 @@
+
+def f(x,l=[]):   # modifying default parameter
+    for i in range(x):
+        l.append(i*i)
+    print(l) 
+
+f(2)
+f(3,[3,2,1])
+f(3)
+
+def myfunc(value=None):  # right way to change default parameter
+    if value is None:
+        value = []
+    for i in range(x):
+        l.append(i*i)
+    print(l) 
+
