@@ -1,0 +1,22 @@
+
+from os import listdir, getcwd
+from os.path import isfile, join
+
+out = []   # has to be global variable
+
+def getFiles(dir_root="."):
+    cwd = getcwd()
+    if(dir_root != "."):
+        cwd = join(cwd, dir_root)
+    fileNdirs = listdir(dir_root)
+    onlyfiles = [f for f in listdir(dir_root) if isfile(join(dir_root, f))]
+    onlydirs  = list(set(fileNdirs) - set(onlyfiles))
+    out.append(onlyfiles)
+
+    for dir_ in onlydirs:
+        temp = join(cwd,dir_)
+        getFiles(join(cwd,dir_))
+    return out
+
+files = getFiles()
+print(files)
