@@ -1,0 +1,56 @@
+Python Pickle Module for saving Objects by serialization
+
+This tutorial is going to cover the pickle module, which is a part of your standard 
+library with your installation of Python. So what is pickling? Pickling is the serializing
+and de-serializing of python objects to a byte stream. Unpicking is the opposite.
+
+You may hear this methodology called serialization, marshalling or flattening in other
+languages, but it is pretty much exclusively referred to as pickling in Python. So what
+does pickling mean, simply? Pickling is used to store python objects. This means things
+like lists, dictionaries, class objects, and more.
+
+What are some examples?
+Generally, you will find pickling to be most useful with data analysis, where you are 
+performing routine tasks on the data, such as pre-processing. Also, it makes a lot of 
+sense when you're working with Python-specific data types, such as dictionaries.
+
+For example, we use pickling in the NLTK tutorial series to save our trained machine 
+learning algorithm. This is so that, every time we want to use it, we do not need to 
+constantly re-train it, which takes a while.
+
+Instead, we just train the algorithm once, store it to a variable (an object), and 
+then we pickle it. In the case of the NLTK module, generating the classifiers every 
+time was taking 5-15+ minutes. With pickle, it was taking about 5 seconds.
+
+If you have a large dataset, for example, and you're loading that massive data set 
+into memory every time you run the program, it may make a lot of sense to just pickle 
+it, and then load that instead, because it will be far faster, again by 50 - 100x, 
+sometimes far more depending on the size.
+
+Let's show a simple example:
+import pickle
+
+example_dict = {1:"6",2:"2",3:"f"}
+
+pickle_out = open("dict.pickle","wb")
+pickle.dump(example_dict, pickle_out)
+pickle_out.close()
+
+First, import pickle to use it, then we define an example dictionary, which is a Python object.
+Next, we open a file (note that we open to write bytes in Python 3+), then we use pickle.dump()
+to put the dict into opened file, then close.
+
+The above code will save the pickle file for us, now we need to cover how to access the pickled file:
+pickle_in = open("dict.pickle","rb")
+example_dict = pickle.load(pickle_in)
+Open the pickle file
+Use pickle.load() to load it to a var.
+
+That's all there is to it, now you can do things like:
+print(example_dict)
+print(example_dict[3])
+Through saving the serialized object, it's nature is included, so we don't have to worry about 
+loading things "as" strings, dictionaries, lists, etc.
+
+credits:
+https://pythonprogramming.net/python-pickle-module-save-objects-serialization/
