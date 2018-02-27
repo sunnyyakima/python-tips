@@ -1,0 +1,38 @@
+
+[(lambda x: x*x) for x in range(10)]
+This is of course just 10 different copies of the squaring function, see:
+>>> [lambda x: x*x for _ in range(3)]
+[<function <lambda> at 0x00000000023AD438>, <function <lambda> at 0x00000000023AD4A8>, <function <lambda> at 0x00000000023AD3C8>]
+Note the memory addresses of the lambdas - they are all different!
+
+You could of course have a more "optimal" (haha) version of this expression:
+>>> [lambda x: x*x] * 3
+[<function <lambda> at 0x00000000023AD2E8>, <function <lambda> at 0x00000000023AD2E8>, <function <lambda> at 0x00000000023AD2E8>]
+See? 3 time the same lambda.
+
+Please note, that I used _ as the for variable. It has nothing to do with the x in the lambda (it is overshadowed lexically!). Get it?
+
+I'm leaving out the discussion, why the syntax precedence is not so, that it all meant:
+
+[lambda x: (x*x for x in range(10))]
+which could be: [[0, 1, 4, ..., 81]], or [(0, 1, 4, ..., 81)], or which I find most logical, 
+this would be a list of 1 element - a generator returning the values. It is just not the case, the language doesn't work this way.
+
+>>> x = [lambda x: (x*x for x in range(10))]
+>>>
+>>> x[0]
+<function <lambda> at 0x7f6ccffe3aa0>
+>>> x[0](1)
+<generator object <genexpr> at 0x7f6ccfff70f0>
+>>> x[0](2)
+<generator object <genexpr> at 0x7f6ccd88d140>
+>>> x[1]
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+IndexError: list index out of range
+>>> y = x[0](5)
+>>> y
+<generator object <genexpr> at 0x7f6ccfff70f0>
+>>> list(y)
+[0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+>>>
