@@ -28,5 +28,7 @@ Monkeypatches can be a source of upgrade pain, when the patch makes assumptions 
 patched object which are no longer true.
 So, just because python allows us to be very dynamic, it's not always a good idea :)
 
+Someone consider it is vey useful in unit testing.
+
 credit:
 https://web.archive.org/web/20120730014107/http://wiki.zope.org/zope2/MonkeyPatch
