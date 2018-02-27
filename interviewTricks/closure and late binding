@@ -9,7 +9,8 @@ def multipliers():
 
 print [m(2) for m in multipliers()]
 
-An example of a closure is when a function depends on a variable outside it’s scope. A more specific definition from Stack Overflow Post states:
+An example of a closure is when a function depends on a variable outside it’s scope. A more specific
+definition from Stack Overflow Post states:
 
 A closure occurs when a function has access to a local variable from an enclosing scope that has finished its execution.
 
@@ -20,9 +21,8 @@ def make_printer(msg):
 We can see that the printer() function depends on the variable msg which is defined outside the scope of it’s function.
 
 Late binding and bad side-effects
-However, things get a bit more complicated when we have late binding. It’s indeed a gotchas and is stated in Python Guide as:
-
-Python’s closures are late binding. This means that the values of variables used in closures are looked up at the time the inner function is called.
+Python’s closures are late binding. This means that the values of variables used in closures are
+looked up at the time the inner function is called.
 
 For example, if we are given the closure:
 
@@ -30,7 +30,9 @@ def multipliers():
     return [lambda x : i*x for i in range(4)]
 
 print [m(2) for m in multipliers()] # [6, 6, 6, 6]
-Then we expect the output of the print statement to be [0, 2, 4, 6] based on the element-wise operation [0*2, 1*2, 2*2, 3*2]. However, [3*2, 3*2, 3*2, 3*2] = [6, 6, 6, 6] is what is actually return. That is because i is not passed to the the lambda function until the loop for i in range(4) has been evaluated.
+Then we expect the output of the print statement to be [0, 2, 4, 6] based on the element-wise 
+operation [0*2, 1*2, 2*2, 3*2]. However, [3*2, 3*2, 3*2, 3*2] = [6, 6, 6, 6] is what is actually
+return. That is because i is not passed to the the lambda function until the loop for i in range(4) has been evaluated.
 
 In order to avoid the late binding side-effect we default the i argument by:
 
@@ -42,3 +44,47 @@ print [m(2) for m in multipliers()] # [0, 2, 4, 6]
 credits:
 https://github.com/jivoi/junk/blob/master/toptal/python-interview-questions/2.py
 http://quickinsights.io/python/python-closures-and-late-binding/
+
+Here is a more clear explanation from:
+https://stackoverflow.com/questions/6076270/python-lambda-function-in-list-comprehensions
+
+[lambda x: x * i for i in range(4)]
+this means of course:
+[(lambda x: x * i) for i in range(4)]
+
+BUT it DOESN'T mean:
+[(lambda x: x * 0), (lambda x: x * 1), ... (lambda x: x * 3)]
+This is just crazy!
+
+The lambdas in the list comprehension are a closure over the scope of this comprehension.
+A lexical closure, so they refer to the i via reference, and not its value when they were evaluated!
+
+So, this expression:
+[(lambda x: x * i) for i in range(4)]
+
+IS roughly EQUIVALENT to:
+[(lambda x: x * 3), (lambda x: x * 3), ... (lambda x: x * 3)]
+
+I'm sure we could see more here using a python decompiler (by which I mean e.g. the dis module), 
+but for Python-VM-agnostic discussion this is enough. So much for the job interview question.
+
+Now, how to make a list of multiplier lambdas, which really multiply by consecutive integers? 
+Well, similarly to the accepted answer, we need to break the direct tie to i by wrapping it in 
+another lambda, which is getting called inside the list comprehension expression:
+
+Before:
+>>> a = [(lambda x: x * i) for i in (1, 2)]
+>>> a[1](1)
+2
+>>> a[0](1)
+2
+After:
+>>> a = [(lambda y: (lambda x: y * x))(i) for i in (1, 2)]
+>>> a[1](1)
+2
+>>> a[0](1)
+1
+(I had the outer lambda variable also = i, but I decided this is the clearer solution - 
+I introduced y so that we can all see which witch is which).
+
+
