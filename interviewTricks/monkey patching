@@ -1,0 +1,32 @@
+
+A MonkeyPatch is a piece of Python code which extends or modifies other code at runtime (typically at startup).
+
+A simple example looks like this:
+from SomeOtherProduct.SomeModule import SomeClass
+
+def speak(self):
+    return "ook ook eee eee eee!"
+
+SomeClass.speak = speak
+
+Why monkeypatch?
+The motivation for monkeypatching is typically that the developer needs to modify or extend 
+behavior of a third-party product, and does not wish to maintain a private copy of the source code.
+
+For example, you may wish to add a tab to the Zope Management Interface screens for a core or third-party product. 
+
+Monkeypatching Considered Harmful
+There are serious drawbacks to monkeypatching:
+If two modules attempt to monkeypatch the same method, one of them (whichever one runs last)
+"wins" and the other patch has no effect. (In some cases, if the "winning" monkeypatch takes
+care to call the original method, the other patch(es) may also work; but you must hope that 
+the patches do not have contradictory intentions.)
+It creates a discrepancy between the original source code on disk and the observed behavior.
+This can be very confusing when troubleshooting, especially for anyone other than the monkeypatch's
+author. Monkeypatching is therefore a kind of antisocial behavior.
+Monkeypatches can be a source of upgrade pain, when the patch makes assumptions about the 
+patched object which are no longer true.
+So, just because python allows us to be very dynamic, it's not always a good idea :)
+
+credit:
+https://web.archive.org/web/20120730014107/http://wiki.zope.org/zope2/MonkeyPatch
