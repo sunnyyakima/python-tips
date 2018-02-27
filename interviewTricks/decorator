@@ -1,0 +1,16 @@
+These are decorators. A decorator is a special kind of function that either takes a function and 
+returns a function, or takes a class and returns a class.
+
+@my_decorator
+def my_func(stuff):
+    do_things
+
+Is equivalent to
+def my_func(stuff):
+    do_things
+
+my_func = my_decorator(my_func)
+
+credit:
+
+https://www.codementor.io/sheena/advanced-use-python-decorators-class-function-du107nxsv
