@@ -1,0 +1,13 @@
+
+import gzip
+
+with gzip.open(infastq, 'r') as f_in, gzip.open(outfastq, 'wb') as f_out:
+    for line in f_in:
+        my_regex1 = r"^@M02472"
+        my_regex2 = r"^@M02953"
+        if(re.search(my_regex1, line) or re.search(my_regex2, line)) : # and re.search(sampleID, line) ):
+            keep0 = line[:-22] + line[-9:] # " 2:N:0:1\n"
+            f_out.write(keep0)
+        else:
+            f_out.write(line)
+
