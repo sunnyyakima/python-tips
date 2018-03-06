@@ -1,0 +1,45 @@
+
+import os
+_, filename = os.path.split('/home/luciano/.ssh/idrsa.pub')
+filename
+
+infile = open(inGeno, 'r')
+ for line in infile.readlines():
+ line = line.rstrip("\n")
+
+of_tfam = open(tfamf, 'w')
+
+of_tfam.write(fam+"\nilename = 'Filename.txt'
+
+----------------------
+with open(filename, 'r') as f:
+
+     contents = f.read()
+     list_of_lines = [line.split('\tor line in contents.split('\n:]]
+     # list_of_lines is a list of list
+
+----------------------
+#You can list all files in the current directory using:
+import os
+for filename in os.listdir(os.getcwd()):
+   # do your stuff
+
+#Or you can list only some files, depending on the file pattern using the glob module:
+import glob
+for filename in glob.glob('*.txt'):
+   # do your stuff
+
+#It doesn’t have to be the current directory you can list them in any path you want:
+path = '/some/path/to/file'
+
+for filename in os.listdir(path):
+    # do your stuff
+
+for filename in glob.glob(os.path.join(path, '*.txt')):
+    # do your stuff
+
+#Or you can even use the pipe as you specified using fileinput
+
+import fileinput
+for line in fileinput.input():
+    # do your stuff
