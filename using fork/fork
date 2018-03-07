@@ -1,0 +1,34 @@
+if(__name__ == "__main__"):
+    script, runDir0 = sys.argv
+
+    runDir0 = re.sub(r" $", "", runDir0)
+    runDir0 = re.sub(r"^ ", "", runDir0)
+
+    runDir = "/media/ngs/ArcherCore_validation/" + runDir0 + "/Data/Intensities/BaseCalls/"
+    os.system("ln -s " + runDir + "*fastq.gz* ." )
+    os.system("rm -rf Undetermined_*" )
+
+    sampleList = getSampleID()
+    print(sampleList)
+    forks = 2
+    for i in range(forks):
+        try:
+            pid = os.fork()
+            print(pid)
+        except OSError:
+            sys.stderr.write("Could not create a child process\n")
+            continue
+
+        if pid == 0:
+            extract(sampleList[i])
+            print("In the child process {} with PID {}".format(i+1, os.getpid()))
+            print(sampleList[i])
+            trimGzip(sampleList[i]+"_R1_processed.fastq.gz")
+            trimGzip(sampleList[i]+"_R2_processed.fastq.gz")
+            os._exit(0)
+
+    for i in range(forks):
+        finished = os.waitpid(0, 0)
+        print(finished)
+
+
