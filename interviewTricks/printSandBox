@@ -19,3 +19,7 @@ printSandBox(7)
   ***
  *****
 *******
+
+def printSandDrop1(n):
+    print("\n".join(list(map(lambda x: " "*x + "*"*(n-2*x), range(int(n/2))))+list(map(lambda x: " "*(n-x) + "*"*(n-2*(n-x)), range(int(n/2)+1, n+1)))))
+
