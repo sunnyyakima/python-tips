@@ -1,0 +1,21 @@
+
+def printSandBox(n):
+	i = 0
+	while(i < int(n/2)):
+		print(" "*i + "*"*(n-2*i))
+		i += 1
+	while(i <= n):
+		if( i == int(n/2)):
+			i += 1
+			continue
+		print(" "*(n-i) + "*"*(n-2*(n-i)))
+		i += 1
+
+printSandBox(7)
+*******
+ *****
+  ***
+   *
+  ***
+ *****
+*******
