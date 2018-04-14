@@ -1,0 +1,5 @@
+info2 = "a=1;b=2;c=4;d=9"
+
+dict1 = dict(map(lambda x:x.split("="), info2.split(";")))
+ 
+dict2 = {k:v for k, v in (x.split("=") for x in info2.split(";") ) }
