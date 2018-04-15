@@ -18,7 +18,7 @@ a[1][2]['test'] = 6
 
 print a
 
-
+https://gist.github.com/hrldcpr/2012250
 from collections import defaultdict
 import json
 
