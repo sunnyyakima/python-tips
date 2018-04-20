@@ -1,0 +1,18 @@
+
+import os
+import re
+import sys
+
+# fluff profile -i chrN:100-20000 -d bamfile.bam -o outfile.png
+
+bedfile = "/home/yliu/coverage_plot/PanelV1half79Genes.bed"
+geneHash = {}
+bfile = open(bedfile, "r")
+for line in bfile.readlines():
+    line = line.rstrip("\r\n")
+    temp = line.split("\t")
+    geneHash[temp[3]] = temp[0]+":"+temp[1]+"-"+temp[2]
+
+
+for k in geneHash:
+os.system("fluff profile -i " + geneHash[k] + " -d *bam -o " + k + ".png")
