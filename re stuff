@@ -1,5 +1,0 @@
-import re
-
-line = re.sub(r”\””, “”, line)
-
-if(re.search(“^IlmnID”, line)):
