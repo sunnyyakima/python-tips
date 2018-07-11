@@ -4,16 +4,42 @@ _, filename = os.path.split('/home/luciano/.ssh/idrsa.pub')
 filename
 
 infile = open(inGeno, 'r')
- for line in infile.readlines():
- line = line.rstrip("\n")
+for line in infile.readlines():
+   line = line.rstrip("\n")
 
 of_tfam = open(tfamf, 'w')
 
 of_tfam.write(fam+"\nilename = 'Filename.txt'
 
+with open('C:/path/numbers.txt') as f:
+    lines = f.read().splitlines()
+
+
+#Sample 1 - elucidating each step but not memory efficient
+lines = []
+with open("C:\name\MyDocuments\numbers") as file:
+    for line in file: 
+        line = line.strip() #or some other preprocessing
+        lines.append(line) #storing everything in memory!
+
+#Sample 2 - a more pythonic and idiomatic way but still not memory efficient
+with open("C:\name\MyDocuments\numbers") as file:
+    lines = [line.strip() for line in file]
+
+#Sample 3 - a more pythonic way with efficient memory usage. Proper usage of with and file iterators. 
+with open("C:\name\MyDocuments\numbers") as file:
+    for line in file:
+        line = line.strip() #preprocess line
+        doSomethingWithThisLine(line) #take action on line instead of storing in a list. more memory efficient at the cost of execution speed
+
+# This could be considered inefficient as the file descriptor might not be closed immediately. Could be a potential issue when this is called inside a function opening thousands of files.
+data = [line.strip() for line in open("C:/name/MyDocuments/numbers", 'r')]
+
+f = open("file.txt")  # need close file
+lines = f.readlines() # there is new line sign in the end of lines
+
 ----------------------
 with open(filename, 'r') as f:
-
      contents = f.read()
      list_of_lines = [line.split('\tor line in contents.split('\n:]]
      # list_of_lines is a list of list
