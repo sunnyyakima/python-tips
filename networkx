@@ -1,0 +1,15 @@
+
+import networkx as nx
+
+G = nx.Graph()
+G.add_edge(1, 2, weight=4.7)
+G.add_edge(3, 4, weight=5.8)
+ 
+for node1, node2, data in G.edges(data=True):
+    print(data['weight'])
+for node1, node2, data in G.edges(data=True):
+    print(str(node1) + " " + str(node2))
+
+for node1, node2 in G.edges():
+    print(str(node1) + " " + str(node2))
+ 
