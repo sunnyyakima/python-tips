@@ -1,0 +1,42 @@
+
+http://andre-rendeiro.com/2016/01/04/survival_analysis_with_lifelines_part1
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+from lifelines import KaplanMeierFitter
+from lifelines.statistics import logrank_test
+from matplotlib.offsetbox import AnchoredText
+
+
+clinical = pd.read_csv("SNORA5C_survive.csv")
+clinical["duration"] = clinical["Days"]
+clinical["patient_death_date"] = clinical["Status"]
+
+T = [i / 30.0 for i in clinical["duration"]]
+C = [True if i == "Dead"  else False for i in clinical["patient_death_date"]]
+
+fitter = KaplanMeierFitter()
+fitter.fit(T, event_observed=C, label="all patients")
+fitter.plot(show_censors=True)
+
+trait = "Expression"
+label = clinical[trait].unique()
+#label = label[~np.array(map(pd.isnull, label))]
+
+fig, ax = plt.subplots(1)
+
+low  = clinical[clinical[trait] == "low"].index.tolist()
+fitter.fit([T[i] for i in low], event_observed=[C[i] for i in low], label="low")
+fitter.plot(ax=ax, show_censors=True)
+
+high = clinical[clinical[trait] == "high"].index.tolist()
+fitter.fit([T[i] for i in high], event_observed=[C[i] for i in high], label="high")
+fitter.plot(ax=ax, show_censors=True)
+
+p = logrank_test(
+    [T[i] for i in low], [T[i] for i in high],
+    event_observed_A=[C[i] for i in low],
+    event_observed_B=[C[i] for i in high]).p_value
+
+print(p)
