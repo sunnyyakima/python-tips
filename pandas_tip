@@ -1,0 +1,33 @@
+
+import re
+import pandas as pd
+
+bin_group = pd.read_csv("bin_mtx_GSE9782.csv", sep=',', header=0, index_col=0)
+bin_group.head()
+
+survive   = pd.read_csv("GSE9782_Bortezomib_overallsurvive.txt",  sep='\t', header=0, index_col=0)
+survive.head()  
+
+bin_grup_index = bin_group.index.tolist()
+survive_index  = survive.index.tolist()
+
+samples = sorted(list(set(bin_grup_index) & set(survive_index)))
+survive_out = survive.loc[samples]
+bin_group_out = bin_group.loc[samples]
+
+df_out1 = pd.concat([survive_out,bin_group_out], axis=1, ignore_index=False, sort=False)
+
+tfs = pd.read_csv("tf_freq_summary.txt",  sep='\t')
+tfs1 = tfs[tfs.freq>6] 
+tfs1.head()
+tfs2 = tfs1.tf.tolist()
+tfs3 = [ x+"(+)" for x in tfs2]  
+
+bin_tf =  list(bin_group)
+common_tf = sorted(list(set(bin_tf) & set(tfs3 ))) 
+
+col_out = common_tf.insert(0, "time")
+col_out = common_tf.insert(0, "event")
+df_out2 = df_out1[common_tf]
+df_out2.to_csv("GSE9782_scenic_bin_grp_os.csv", index = True, header=True)
+
