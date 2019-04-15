@@ -1,3 +1,68 @@
+# for boxplot
+
+import re
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+exprM = pd.read_csv("PRJNA293943_txi_scaledTPM.csv", sep=",", header=0, index_col=0)
+exprM2_log = np.log2(1 + exprM)
+exprM2_log.boxplot(rot=90)
+plt.show()
+>>>
+
+# remove 2_BM, 3_BM, and 4_BM form coMMpass and extract lincRNA from coMMpass
+exprM = pd.read_csv("MMRF_CoMMpass_IA13a_E74GTF_Salmon_Gene_TPM.txt", sep="\t", header=0, index_col=0)
+lncRNA= pd.read_csv("MM_lincRNA_list.csv", sep=",", header=0, index_col=0)
+
+samples1 = exprM.columns
+samples2 = [s for s in samples1 if re.search("_1_BM", s)]
+
+lncRNA_id = [lnc  for lnc in lncRNA.index if re.match("ENSG", str(lnc)) ] 
+
+exprM2 = exprM[samples2]
+exprM2_log = np.log2(1+exprM2)
+lincRNA_exprM2_log = exprM2_log.loc[lncRNA_id] 
+
+lincRNA_exprM2_log.T.boxplot(rot = 90)
+plt.show()  
+plt.savefig(fname= "coMMpass_lincRNA_boxplot.jpg",format="jpg" )
+
+
+# for other dataset
+exprM = pd.read_csv("PRJNA478148_txi_scaledTPM.csv", sep=",", header=0, index_col=0)
+lncRNA= pd.read_csv("MM_lincRNA_list.csv", sep=",", header=0, index_col=0)
+exprM2_log = np.log2(1+exprM)
+lncRNA_id = [lnc  for lnc in lncRNA.index if re.match("ENSG", str(lnc)) ]
+lincRNA_exprM2_log = exprM2_log.loc[lncRNA_id]
+ 
+lincRNA_exprM2_log.T.boxplot(rot = 90)
+plt.show()
+lincRNA_exprM2_log.T.boxplot(rot = 90)
+plt.savefig(fname= "PRJNA478148_lincRNA_boxplot.jpg",format="jpg" )
+plt.show()
+ 
+# sample with outliers
+#
+
+exprM = pd.read_csv("PRJNA293943_txi_scaledTPM.csv", sep=",", header=0, index_col=0)
+samples1 = exprM.columns
+outliers = []
+with open("sample_outliers.txt") as infile:
+    for line in infile:
+        line = line.rstrip()
+        outliers.append(line)
+samples2 = [s for s in samples1 if s not in outliers ]
+
+lncRNA= pd.read_csv("MM_lincRNA_list.csv", sep=",", header=0, index_col=0)
+lncRNA_id = [lnc  for lnc in lncRNA.index if re.match("ENSG", str(lnc)) ]
+exprM2 = exprM[samples2]
+exprM2_log = np.log2(1+exprM2)
+
+lincRNA_exprM2_log = exprM2_log.loc[lncRNA_id]
+lincRNA_exprM2_log.T.boxplot(rot = 90)
+
+plt.show()
 
 import re
 import pandas as pd
