@@ -1,0 +1,25 @@
+
+import re
+import pandas as pd
+from scipy.stats import spearmanr
+
+exprM    = pd.read_csv("MMRF_coMMpass_Gene_counts_uniqsymbol_log_high_expressed2.csv", sep=',', header=0, index_col=0)
+lincRNA0 = pd.read_csv("gencode.v29.lincRNA.csv", sep=",", header=0, index_col=0) 
+genes    = exprM.index.tolist()
+lincRNA1 = lincRNA0.index.tolist()
+
+lincRNA2 = sorted(list(set(genes) & set(lincRNA1)))
+othergen = sorted(list(set(genes) - set(lincRNA2)))
+
+lincRNA_exprM = exprM.loc[lincRNA2]
+othergen_expr = exprM.loc[othergen]
+
+outfile = open("MMRF_coMMpass_high_express_lincRNA_vs_mRNA.csv", "w")
+outfile.write("lincRNA,gene,corr,p_value\n")
+for index1, row1 in lincRNA_exprM.iterrows():
+    for index2, row2 in othergen_expr.iterrows():
+        corr, p_value = spearmanr(row1, row2) 
+        outfile.write(index1+","+index2+","+str(corr)+","+str(p_value)+"\n") 
+
+outfile.close()
+
