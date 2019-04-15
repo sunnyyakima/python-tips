@@ -7,6 +7,8 @@ exprM    = pd.read_csv("MMRF_coMMpass_Gene_counts_uniqsymbol_log_high_expressed2
 lincRNA0 = pd.read_csv("gencode.v29.lincRNA.csv", sep=",", header=0, index_col=0) 
 genes    = exprM.index.tolist()
 lincRNA1 = lincRNA0.index.tolist()
+samples1 = exprM.columns
+samples2 = lincRNA0.columns
 
 lincRNA2 = sorted(list(set(genes) & set(lincRNA1)))
 othergen = sorted(list(set(genes) - set(lincRNA2)))
