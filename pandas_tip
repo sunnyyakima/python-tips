@@ -4,6 +4,12 @@ import pandas as pd
 
 bin_group = pd.read_csv("bin_mtx_GSE9782.csv", sep=',', header=0, index_col=0)
 bin_group.head()
+exprM    = pd.read_csv("MMRF_coMMpass_Gene_counts_uniqsymbol_log_high_expressed2.csv", sep=',', header=0, index_col=0)
+lincRNA0 = pd.read_csv("gencode.v29.lincRNA.csv", sep=",", header=0, index_col=0) 
+genes    = exprM.index.tolist()
+lincRNA1 = lincRNA0.index.tolist()
+samples1 = exprM.columns
+samples2 = lincRNA0.columns
 
 survive   = pd.read_csv("GSE9782_Bortezomib_overallsurvive.txt",  sep='\t', header=0, index_col=0)
 survive.head()  
