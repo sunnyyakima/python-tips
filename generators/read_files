@@ -1,0 +1,42 @@
+# Generators are perfect for reading a large number of large files since they yield out data a single chunk at a time 
+# irrespective of the size of the input stream. 
+# But, what if we’re dealing with extremely large files? And what if there are a lot of them? Fortunately, Python’s open() 
+# function is efficient and doesn’t load the entire file into memory. But what if our matches list far exceeds the 
+# available memory on our machine?
+
+# We divided our whole process into three different components:
+ #    Generating set of filenames
+ #    Generating all lines from all files
+ #    Filtering out lines on the basis of pattern matching
+
+def generate_filenames():
+    """
+    generates a sequence of opened files
+    matching a specific extension
+    """
+    for dir_path, dir_names, file_names in os.walk('test/'):
+        for file_name in file_names:
+            if file_name.endswith('.py'):
+                yield open(os.path.join(dir_path, file_name))
+
+def cat_files(files):
+    """
+    takes in an iterable of filenames
+    """
+    for fname in files:
+        for line in fname:
+            yield line
+
+def grep_files(lines, pattern=None):
+    """
+    takes in an iterable of lines
+    """
+    for line in lines:
+        if pattern in line:
+            yield line
+
+py_files = generate_filenames()
+py_file = cat_files(py_files)
+lines = grep_files(py_file, 'python')
+for line in lines:
+    print (line)
