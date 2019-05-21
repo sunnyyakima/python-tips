@@ -25,3 +25,24 @@ def find_anagrams(inlist):
         
     return outList
         
+
+
+inlist0 = ['bat', 'bat', 'rats', 'god', 'dog', 'cat', 'arts', 'star', 'rats']
+
+def anagram(inlist):
+    inlist = list(set(inlist))
+    outlist = []
+    
+    outlist = [ (inlist[i], inlist[j]) for i in range(len(inlist)) for j in range(i+1,  len(inlist)) if sorted(inlist[i]) == sorted(inlist[j])]
+
+#    for i in range(len(inlist)):
+#        for j in range(i+1, len(inlist)):
+#            if sorted(inlist[i]) == sorted(inlist[j]):
+#                outlist.append(inlist[i])
+#                outlist.append(inlist[j])
+#                #print(outlist)
+    #outlist = ''.join(outlist)
+    return list(set(outlist))
+
+out = anagram(inlist0)
+print(out)
