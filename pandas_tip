@@ -11,6 +11,24 @@ exprM2_log.boxplot(rot=90)
 plt.show()
 >>>
 
+# extract expression for common genes
+exprM_GSE2658 = pd.read_csv("GSE2658_quantile_norm.csv", sep=",", header=0, index_col=0)
+exprM_GSE2658.shape
+exprM_GSE9782 = pd.read_csv("GSE9782_combined_gene_symbol.csv", sep=",", header=0, index_col=0)
+exprM_GSE9782.shape
+genes_GSE2658 = exprM_GSE2658.index.tolist()
+genes_GSE9782 = exprM_GSE9782.index.tolist()
+common_genes = sorted(list(set(genes_GSE2658) & set(genes_GSE9782)))
+common_genes[0:5]
+len(common_genes)
+exprM_GSE2658_common = exprM_GSE2658.loc[common_genes]
+exprM_GSE2658_common.shape
+exprM_GSE9782_common = exprM_GSE9782.loc[common_genes]
+exprM_GSE9782_common.shape
+exprM_GSE9782_common.to_csv("GSE9782_combat0.csv", index = True, header=True)
+exprM_GSE2658_common.to_csv("GSE2658_combat0.csv", index = True, header=True)
+
+
 # remove 2_BM, 3_BM, and 4_BM form coMMpass and extract lincRNA from coMMpass
 exprM = pd.read_csv("MMRF_CoMMpass_IA13a_E74GTF_Salmon_Gene_TPM.txt", sep="\t", header=0, index_col=0)
 lncRNA= pd.read_csv("MM_lincRNA_list.csv", sep=",", header=0, index_col=0)
