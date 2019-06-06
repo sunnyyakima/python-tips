@@ -1,0 +1,20 @@
+# https://stackoverflow.com/questions/22841764/best-practice-for-django-project-working-directory-structure
+
+~/Django_projects/project_name/
+manage.py           #
+db.sqlites3         # database file can be viewed by DB browser for SQLite
+project_name/       # project dir (the one which django-admin.py creates)
+    __init__.py
+    urls.py
+    wsgi.py
+static/             # site-specific static files
+templates/          # site-specific templates
+app_name/
+    __init__.py	
+    admin.py	
+    migrations	
+    tests.py
+    __pycache__	
+    apps.py		
+    models.py	
+    views.py
