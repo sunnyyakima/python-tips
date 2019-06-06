@@ -2,7 +2,7 @@
 
 ~/Django_projects/project_name/
 manage.py           #
-db.sqlites3         # database file can be viewed by DB browser for SQLite
+db.sqlites3         # database file can be viewed by ===> DB browser for SQLite <===
 project_name/       # project dir (the one which django-admin.py creates)
     __init__.py
     urls.py
