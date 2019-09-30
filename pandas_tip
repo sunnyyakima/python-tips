@@ -136,3 +136,45 @@ for sample in samples:
         exprM[sample].to_csv(outhandle, index=True, header=True, sep="\t")
 
 
+# convert ENSG to Gene Symbol
+import re
+import pandas as pd
+import numpy as np
+
+
+ensg_file = "MMRF_CoMMpass_IA13a_E74GTF_Salmon_Gene_TPM.txt"
+map_file  = "map_ENSQ_Gene.csv"
+
+exprM = pd.read_csv(ensg_file , sep="\t", header=0, index_col=0)
+
+samples1   = exprM.columns
+samples2   = [s for s in samples1 if re.search("_1_BM", s)]
+exprM2     = exprM[samples2]
+sample3    = exprM2.columns
+exprM2_log = np.log2(1+exprM2)
+ENSG_id    =   exprM2_log.index
+
+map_hash = {}
+with open(map_file) as infile:
+    next(infile)
+    for line in infile:
+        line = line.rstrip()
+        line = re.sub("\"", "", line)
+        tmp = line.split(",")
+        map_hash[tmp[1]] = tmp[3]
+
+with open("MMRF_CoMMpass_IA13a_E74GTF_Salmon_Gene_symbol_TPM.csv", "w") as outfile:
+    outfile.write("\"\",")
+    for s in sample3:
+        outfile.write(s+",")
+    outfile.write("\n")
+    for ensg in ENSG_id:
+        if ensg in map_hash :
+            outfile.write(map_hash[ensg])
+            for expr in exprM2_log.loc[ensg]:
+                outfile.write(","+str(expr))
+            outfile.write("\n")
+
+
+
+
