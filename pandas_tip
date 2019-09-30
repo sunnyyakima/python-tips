@@ -120,3 +120,19 @@ col_out = common_tf.insert(0, "event")
 df_out2 = df_out1[common_tf]
 df_out2.to_csv("GSE9782_scenic_bin_grp_os.csv", index = True, header=True)
 
+## for single sample GSEA input
+
+import re
+import pandas as pd
+exprM = pd.read_csv("MMRC_gct_tmp.csv", sep=",", header=0, index_col=0)
+exprM.shape
+
+samples = exprM.columns
+for sample in samples:
+    outfile = sample +"_gctout.gct"
+    with open(outfile, "w") as outhandle:
+        outhandle.write("#1.3\n24442\t1\t0\t0\n")
+#        a = exprM[sample]
+        exprM[sample].to_csv(outhandle, index=True, header=True, sep="\t")
+
+
